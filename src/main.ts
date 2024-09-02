@@ -48,7 +48,7 @@ function eventHandler(event: KeyboardEvent) {
 }
 
 function touchHandler(event: TouchEvent) {
- // document.querySelector('pre')!.textContent += event.type + '\n' + event.timeStamp + '\n'
+  event.preventDefault()
   renderMorse()
 
   events.push(event)
@@ -62,7 +62,7 @@ function touchHandler(event: TouchEvent) {
     return
   }
   // capture movement
-  const backspace = events.filter(e => e.type === 'touchmove').length > 10;
+  const backspace = events.filter(e => e.type === 'touchmove').length > 3;
   if (backspace) {
     document.querySelector('h1')!.textContent = document.querySelector('h1')!.textContent?.slice(0, -1) || '';
     events = []
