@@ -7,6 +7,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <h3></h3>
     <h2 style="word-spacing: 1em;">.--. .-. . ... ... / ... .--. .- -.-. .</h2>
     <p>press space</p>
+    <pre></pre>
   </div>
 `
 
@@ -17,7 +18,7 @@ enum Morse {
   SPACE = ' '
 }
 
-let events: KeyboardEvent[] = []
+let events: (KeyboardEvent | TouchEvent)[] = []
 let timestamp = 0
 
 function eventHandler(event: KeyboardEvent) {
@@ -46,9 +47,50 @@ function eventHandler(event: KeyboardEvent) {
   renderMorse()
 }
 
+function touchHandler(event: TouchEvent) {
+ // document.querySelector('pre')!.textContent += event.type + '\n' + event.timeStamp + '\n'
+  renderMorse()
+
+  events.push(event)
+
+  if (event.type != 'touchend') {
+    if (event.timeStamp - timestamp >= 500) {
+      document.querySelector('h1')!.textContent += Morse.SPACE
+    }
+    timestamp = event.timeStamp
+    renderMorse()
+    return
+  }
+  // capture movement
+  const backspace = events.filter(e => e.type === 'touchmove').length > 10;
+  if (backspace) {
+    document.querySelector('h1')!.textContent = document.querySelector('h1')!.textContent?.slice(0, -1) || '';
+    events = []
+    renderMorse()
+    return
+  }
+
+  const morse = events.filter(e => e.type === 'touchend').length === 1
+  if (morse && event.timeStamp - timestamp < 200) {
+    document.querySelector('h1')!.textContent += Morse.DOT
+  } else {
+    document.querySelector('h1')!.textContent += Morse.DASH
+  }
+
+  events = []
+
+  timestamp = event.timeStamp
+  renderMorse()
+
+}
+
 document.addEventListener('keydown', eventHandler)
 document.addEventListener('keyup', eventHandler)
 document.addEventListener('keypress', eventHandler)
+document.addEventListener('touchstart', touchHandler)
+document.addEventListener('touchend', touchHandler)
+document.addEventListener('touchcancel', touchHandler)
+document.addEventListener('touchmove', touchHandler)
 
 
 
